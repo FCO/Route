@@ -1,0 +1,44 @@
+<html>
+	<head>
+		<script src="Route.js"></script>
+		<script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+	</head>
+	<body>
+		<script type="route/template" id="tmpl01" onSet="varName" onChange="str=anotherVar color=fontColor" update="$('div#div')">
+			<table width="100%" style="
+				border: 1px solid <% fontColor %>;
+				padding: 10px;
+			">
+				<tr>
+					<td width="10%">
+						<font color='<% fontColor %>'>number:</font>
+					</td>
+					<td>
+						<font color='<% fontColor %>'><% varName %></font>
+					</td>
+				</tr>
+				<tr>
+					<td width="10%">
+						<font color='<% fontColor %>'>str:</font>
+					</td>
+					<td>
+						<font color='<% fontColor %>'><% anotherVar %></font>
+					</td>
+				</tr>
+			</table>
+		</script>
+
+		<script>
+			$(function() {
+				Route.getRoot()._read_templates_from_scripts().varName = 0;
+				Route.getRoot().createVariable("array").onSet("array").each().log();
+				Route.getRoot().array = [1, 2, 3, 4];
+				$("#incr").click(function(){Route.getRoot().varName++});
+			});
+		</script>
+		<div id=div>bla</div>
+		<button id=incr>increment</button><br>
+		String: <input id="str"><br>
+		font color: <input id="color"><br>
+	</body>
+</html>
