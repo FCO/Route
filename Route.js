@@ -295,13 +295,15 @@ Template.prototype = {
 				if(i % 2 == 0) {
 					this.data.push(temp_arr[i]);
 				} else {
-					this.data.push(this.parse(temp_arr[i]));
-					this.parseBlock(temp_arr, i);
+					var cmd = this.parse(temp_arr[i]);
+					var blk = this.parseBlock(temp_arr, i);
+					this.data.push({'cmd': cmd, block: blk});
 				}
 			}
 		}
 	},
 	parseBlock: function(array, index) {
+		var arr_block  = [];
 		var block      = 0;
 		var original_i = index;
 		var actual;
@@ -314,8 +316,10 @@ Template.prototype = {
 				}
 			}
 			original_i++;
+			if(block) arr_block.push(actual);
 		} while(block != 0);
 		array.unshift(actual);
+		return arr_block;
 	},
 	parse: function(code) {
 		var ret;
@@ -330,11 +334,13 @@ Template.prototype = {
 	parseCmds: function(code) {
 		var ret;
 		var transformed = code.replace(/^\s+|\s+$/g, "");
-		if(transformed.match(/^=/)) {
-			ret = {'return': this.parse(transformed.replace(/^=\s*/, ""))};
-		//} else if(transformed.match(/^\s*FOR\s+\w+/\s+IN\s+\w+\s*$/m)) {
-		//	// Vai ser o For!
+		var match;
+		//if(transformed.match(/^=/)) {
 		//	ret = {'return': this.parse(transformed.replace(/^=\s*/, ""))};
+		//} else
+		if(match = transformed.match(/^\s*FOR\s+(\w+)\s+IN\s+(\w+)\s*$/m)) {
+			// Vai ser o For!
+			ret = {'for': this.parse(transformed.replace(/^=\s*/, ""))};
 		} else if(transformed.match(/^\w+$/)) {
 			ret = {'var': transformed};
 		} else {
@@ -358,15 +364,16 @@ Template.prototype = {
 		var _this = this;
 		this.data.forEach(function(data){
 			if(typeof(data) == typeof({})) {
-				content += _this.execute(data);
+				var cmd = data.cmd;
+				content += _this.execute(cmd, data.block);
 			} else content += data;
 		});
 		return content;
 	},
-	execute: function(data) {
+	execute: function(data, block) {
 		var ret = "";
 		for(var cmd in data) {
-			ret = this[cmd](data[cmd]);
+			ret = this[cmd](data[cmd], block);
 		}
 		return ret;
 	},
