@@ -291,13 +291,12 @@ Template.prototype = {
 	compile: function() {
 		var temp_arr = this.template_str.split(/<%|%>/);
 		for(var i = 0; i < temp_arr.length; i++) {
-console.log("running");
 			if(temp_arr[i] != null) {
 				if(i % 2 == 0) {
 					this.data.push(temp_arr[i]);
 				} else {
 					this.data.push(this.parse(temp_arr[i]));
-					//this.parseBlock(temp_arr, i);
+					this.parseBlock(temp_arr, i);
 				}
 			}
 		}
@@ -305,8 +304,9 @@ console.log("running");
 	parseBlock: function(array, index) {
 		var block      = 0;
 		var original_i = index;
+		var actual;
 		do{
-			var actual = array.splice(index, 1);
+			actual = array.splice(index, 1);
 			if(original_i % 2 != 0) {
 				for(var i = 0; i < actual.length; i++) {
 					if(actual[i] == "{") block++;
@@ -315,6 +315,7 @@ console.log("running");
 			}
 			original_i++;
 		} while(block != 0);
+		array.unshift(actual);
 	},
 	parse: function(code) {
 		var ret;
