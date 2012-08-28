@@ -291,12 +291,13 @@ Template.prototype = {
 	compile: function() {
 		var temp_arr = this.template_str.split(/<%|%>/);
 		for(var i = 0; i < temp_arr.length; i++) {
+console.log("running");
 			if(temp_arr[i] != null) {
 				if(i % 2 == 0) {
 					this.data.push(temp_arr[i]);
 				} else {
 					this.data.push(this.parse(temp_arr[i]));
-					this.parseBlock(temp_arr, i);
+					//this.parseBlock(temp_arr, i);
 				}
 			}
 		}
