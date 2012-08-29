@@ -5,27 +5,29 @@
 	</head>
 	<body>
 		<script type="route/template" id="tmpl01">
-			<table width="100%" style="
-				border: 1px solid <%= fontColor %>;
-				padding: 10px;
-			">
-				<tr>
-					<td width="10%">
-						<font color='<%= fontColor %>'>number:</font>
-					</td>
-					<td>
-						<font color='<%= fontColor %>'><%= varName %></font>
-					</td>
-				</tr>
-				<tr>
-					<td width="10%">
-						<font color='<%= fontColor %>'>str:</font>
-					</td>
-					<td>
-						<font color='<%= fontColor %>'><%= strVar %></font>
-					</td>
-				</tr>
-			</table>
+			<% FOR variable IN array { %>
+				<table width="100%" style="
+					border: 1px solid <%= fontColor |%>;
+					padding: 10px;
+				">
+					<tr>
+						<td width="10%">
+							<font color='<%= fontColor |%>'>number:</font>
+						</td>
+						<td>
+							<font color='<%= fontColor |%>'><%= varName |%></font>
+						</td>
+					</tr>
+					<tr>
+						<td width="10%">
+							<font color='<%= fontColor |%>'>str:</font>
+						</td>
+						<td>
+							<font color='<%= fontColor |%>'><%= strVar %></font>
+						</td>
+					</tr>
+				</table>
+			<% } %>
 		</script>
 
 		<script>

@@ -80,10 +80,12 @@ Route.prototype = {
 			this._templates = {};
 //console.log(this._templates);
 		//this._templates[name] = template;
-		this._templates[name] = new Template(template, this);
+		if(typeof(template) == typeof("")) 
+			this._templates[name] = new Template(template, this);
+		else
+			this._templates[name] = template;
 	},
 	templateExists: function(name) {
-console.log(this);
 		return this._templates[name] != null
 	},
 	variableExists: function(varName) {
@@ -192,12 +194,14 @@ RouteChange.prototype = {
 	each: function(varName) {
 		if(varName == null)
 			varName = "loop";
-		var newRoute = this._owner._clone();
+		var newRoute = this._owner;
+		//var newRoute = this._owner._clone();
 		newRoute.createVariable(varName);
 		this._owner[this._type][this._varName].push({exec: function(value){
 			if(typeof(value) == typeof([]))
-				for(var i = 0; i < value.length; i++)
+				for(var i = 0; i < value.length; i++) {
 					newRoute[varName] = value[i];
+				}
 			else newRoute[varName] = trans(varName);
 		}});
 		return newRoute.onSet(varName);
@@ -295,8 +299,9 @@ Template.prototype = {
 				if(i % 2 == 0) {
 					this.data.push(temp_arr[i]);
 				} else {
-					var cmd = this.parse(temp_arr[i]);
+					var tmp = temp_arr[i];
 					var blk = this.parseBlock(temp_arr, i);
+					var cmd = this.parse(tmp, blk);
 					this.data.push({'cmd': cmd, block: blk});
 				}
 			}
@@ -311,8 +316,14 @@ Template.prototype = {
 			actual = array.splice(index, 1);
 			if(original_i % 2 != 0) {
 				for(var i = 0; i < actual.length; i++) {
-					if(actual[i] == "{") block++;
-					if(actual[i] == "}") block--;
+					if(actual[i] == "{") {
+						actual[i] = " ";
+						block++;
+					}
+					if(actual[i] == "}"){
+						actual[i] = " ";
+						block--;
+					}
 				}
 			}
 			original_i++;
@@ -321,37 +332,50 @@ Template.prototype = {
 		array.unshift(actual);
 		return arr_block;
 	},
-	parse: function(code) {
-		var ret;
+	parse: function(code, block) {
+		var ret = {};
 		var transformed = code.replace(/^\s+|\s+$/g, "");
 		if(transformed.match(/^=/)) {
-			ret = {'return': this.parseCmds(transformed.replace(/^=\s*/, ""))};
+			ret = {'return': this.parseCmds(transformed.replace(/^=\s*/, ""), block)};
 		} else {
-			ret = {'nreturn': this.parseCmds(transformed.replace(/^=\s*/, ""))};
+			ret = {'nreturn': this.parseCmds(transformed, block)};
 		}
 		return ret;
 	},
-	parseCmds: function(code) {
-		var ret;
+	parseCmds: function(code, block) {
+		var ret = {};
 		var transformed = code.replace(/^\s+|\s+$/g, "");
 		var match;
+//console.log(transformed);
 		//if(transformed.match(/^=/)) {
 		//	ret = {'return': this.parse(transformed.replace(/^=\s*/, ""))};
 		//} else
-		if(match = transformed.match(/^\s*FOR\s+(\w+)\s+IN\s+(\w+)\s*$/m)) {
+		if(transformed.match(/\|$/)) {
+			ret = {'noundef': this.parse("=" + transformed.replace(/\s*\|$/, ""))};
+		} else if(match = transformed.match(/^\s*FOR\s+(\w+)\s+IN\s+(\w+)\s*\{?\s*$/m)) {
 			// Vai ser o For!
-			ret = {'for': this.parse(transformed.replace(/^=\s*/, ""))};
+			console.log("for parse block: " + JSON.stringify(block));
+			//ret = {'for': {for_var: match[1], for_list: match[2]}};
+			ret = {'none': ''};
 		} else if(transformed.match(/^\w+$/)) {
 			ret = {'var': transformed};
 		} else {
-			ret = null;
+			//throw "Command not recognized";
+			ret = {none: ""};
 		}
 		return ret;
 	},
+	'none': function(){},
+	'for': function(data, block) {
+		console.log("for data: "  + JSON.stringify(data))
+		console.log("for block: " + JSON.stringify(block))
+	},
 	'var': function(varName) {
-		console.log(this.router);
-		console.log("this.router[" + varName + "] => " + this.router[varName]);
 		return this.router[varName];
+	},
+	'noundef': function(data) {
+		var ret = this.execute(data);
+		return (ret == undefined ? "" : ret);
 	},
 	'return': function(data) {
 		return this.execute(data);
@@ -365,15 +389,17 @@ Template.prototype = {
 		this.data.forEach(function(data){
 			if(typeof(data) == typeof({})) {
 				var cmd = data.cmd;
-				content += _this.execute(cmd, data.block);
+				content += _this.execute(cmd);
 			} else content += data;
 		});
 		return content;
 	},
-	execute: function(data, block) {
+	execute: function(data) {
 		var ret = "";
+console.log("data: " + JSON.stringify(data));
+		var blk = delete data['__BLK__'];
 		for(var cmd in data) {
-			ret = this[cmd](data[cmd], block);
+			ret = this[cmd](data[cmd], blk);
 		}
 		return ret;
 	},
