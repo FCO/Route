@@ -314,8 +314,10 @@ Template.prototype = {
 		var str_blk = "";
 		var sep = ["<%", "%>"];
 		var counter = 0;
+		var initial = 1;
 		
-		while(str_blk == "" || block != 0) {
+		while(initial == 1 || block != 0) {
+			initial = 0;
 			for(var i = 0; i < actual.length; i++) {
 				if(actual[i] == "{") {
 					block++;
@@ -323,7 +325,7 @@ Template.prototype = {
 				}
 				if(actual[i] == "}") {
 					block--;
-					continue;
+					if(block == 0) break;
 				}
 				if(block > 0) {
 					str_blk += actual[i];
@@ -365,6 +367,7 @@ Template.prototype = {
 		} else if(match = transformed.match(/^\s*FOR\s+(\w+)\s+IN\s+(\w+)\s*\{?\s*$/m)) {
 			// Vai ser o For!
 			console.log("for parse block: " + (block));
+			this.router.createTemplate("bla", block);
 			//ret = {'for': {for_var: match[1], for_list: match[2]}};
 			ret = {'none': ''};
 		} else if(transformed.match(/^\w+$/)) {
