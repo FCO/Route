@@ -308,29 +308,39 @@ Template.prototype = {
 		}
 	},
 	parseBlock: function(array, index) {
-		var arr_block  = [];
 		var block      = 0;
-		var original_i = index;
-		var actual;
-		do{
-			actual = array.splice(index, 1);
-			if(original_i % 2 != 0) {
-				for(var i = 0; i < actual.length; i++) {
-					if(actual[i] == "{") {
-						actual[i] = " ";
-						block++;
-					}
-					if(actual[i] == "}"){
-						actual[i] = " ";
-						block--;
-					}
+		var actual = array.splice(index, 1).toString();
+		var orig;
+		var str_blk = "";
+		var sep = ["<%", "%>"];
+		var counter = 0;
+		
+		while(str_blk == "" || block != 0) {
+			for(var i = 0; i < actual.length; i++) {
+				if(actual[i] == "{") {
+					block++;
+					continue;
+				}
+				if(actual[i] == "}") {
+					block--;
+					continue;
+				}
+				if(block > 0) {
+					str_blk += actual[i];
+					actual[i] = "";
+				}
+				if(block == 0) {
+					orig += actual[i];
 				}
 			}
-			original_i++;
-			if(block) arr_block.push(actual);
-		} while(block != 0);
-		array.unshift(actual);
-		return arr_block;
+			if(block != 0){
+				if(counter++ != 0) str_blk += sep[counter % 2];
+				actual = array.splice(index, 1).toString();
+			}
+		}
+		array.unshift(orig);
+
+		return str_blk.replace(/<%\s*$/m, "");
 	},
 	parse: function(code, block) {
 		var ret = {};
@@ -354,7 +364,7 @@ Template.prototype = {
 			ret = {'noundef': this.parse("=" + transformed.replace(/\s*\|$/, ""))};
 		} else if(match = transformed.match(/^\s*FOR\s+(\w+)\s+IN\s+(\w+)\s*\{?\s*$/m)) {
 			// Vai ser o For!
-			console.log("for parse block: " + JSON.stringify(block));
+			console.log("for parse block: " + (block));
 			//ret = {'for': {for_var: match[1], for_list: match[2]}};
 			ret = {'none': ''};
 		} else if(transformed.match(/^\w+$/)) {
@@ -367,8 +377,8 @@ Template.prototype = {
 	},
 	'none': function(){},
 	'for': function(data, block) {
-		console.log("for data: "  + JSON.stringify(data))
-		console.log("for block: " + JSON.stringify(block))
+		//console.log("for data: "  + JSON.stringify(data))
+		//console.log("for block: " + JSON.stringify(block))
 	},
 	'var': function(varName) {
 		return this.router[varName];
@@ -396,7 +406,7 @@ Template.prototype = {
 	},
 	execute: function(data) {
 		var ret = "";
-console.log("data: " + JSON.stringify(data));
+//console.log("data: " + JSON.stringify(data));
 		var blk = delete data['__BLK__'];
 		for(var cmd in data) {
 			ret = this[cmd](data[cmd], blk);

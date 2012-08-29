@@ -34,7 +34,7 @@
 			$(function() {
 				var r = Route.getRoot()._read_templates_from_scripts();
 				r.createVariable("strVar").createVariable("fontColor").createVariable("array");
-				r.onSet("array").each("varName").render("tmpl01").append($("div#div"));
+				//r.onSet("array").each("varName").render("tmpl01").append($("div#div"));
 				r.array = [1, 2, 3, 4];
 				$("#incr").click(function(){Route.getRoot().varName++});
 			});
