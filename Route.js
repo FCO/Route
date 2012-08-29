@@ -1,12 +1,12 @@
 function Route(){
-	if(Route.everyRoute === undefined)
+	if(Route.everyRoute == null)
 		Route.everyRoute = [];
 
 	Route.everyRoute.push(this);
 }
 
 Route.getRoot = function() {
-	if(Route.root === undefined)
+	if(Route.root == null)
 		Route.root = new Route();
 	return Route.root;
 }
@@ -48,10 +48,10 @@ Route.prototype = {
 			}
 			if(onChange != null) {
 				onChangeList = onChange.split(/\s+/);
-				if(onChangeList !== undefined)
+				if(onChangeList != null)
 					for(var j = 0; j < onChangeList.length; j++) {
 						var change = onChangeList[j].split(/=/);
-						if(change[1] !== undefined)
+						if(change[1] != null)
 							this.createVariable(change[1]);
 						this.onChange(eval(change[0]), change[1]).render(templateName).update(eval(update));
 					}
@@ -89,17 +89,17 @@ Route.prototype = {
 		return this._templates[name] != null
 	},
 	variableExists: function(varName) {
-		return this._created[varName] != undefined;
+		return this._created[varName] != null;
 	},
 	createVariable: function(varName) {
-		if(this._created === undefined)
+		if(this._created == null)
 			this._created = {};
 		this._created[varName]    = true;
-		if(this._realValues === undefined)
+		if(this._realValues == null)
 			this._realValues = {};
-		if(this._onGetQueue === undefined)
+		if(this._onGetQueue == null)
 			this._onGetQueue = {};
-		if(this._onSetQueue === undefined)
+		if(this._onSetQueue == null)
 			this._onSetQueue = {};
 
 		this._onGetQueue[varName] = [];
@@ -131,7 +131,7 @@ Route.prototype = {
 		if(typeof(element.get) == typeof(function(){})) 
 			element = element.get(0);
 
-		if(varName === undefined) {
+		if(varName == null) {
 			varName = "element_" + this._elementCounter++;
 			this.createVariable(varName);
 		}
@@ -166,7 +166,7 @@ RouteChange.prototype = {
 	_transforms: [],
 	clear: function(element) {
 		return this.transform(function(value){
-			if(element === undefined)
+			if(element == null)
 				element = document.body;
 			if(typeof(element.get) == typeof(function(){})) 
 				element = element.get(0);
@@ -181,8 +181,8 @@ RouteChange.prototype = {
 	filter_le: function(number) { return this.transform(function(value){if(! (value <= number) ) return null; return value}); },
 	filter_eq: function(number) { return this.transform(function(value){if(! (value == number) ) return null; return value}); },
 	filter_ne: function(number) { return this.transform(function(value){if(! (value != number) ) return null; return value}); },
-	filter_regex: function(regex) { return this.transform(function(value) {if(value !== undefined &&   value.toString().match(regex) ) return null; return value}); },
-	filter_nregex: function(regex) { return this.transform(function(value){if(value !== undefined && ! value.toString().match(regex) ) return null; return value}); },
+	filter_regex: function(regex) { return this.transform(function(value) {if(value != null &&   value.toString().match(regex) ) return null; return value}); },
+	filter_nregex: function(regex) { return this.transform(function(value){if(value != null && ! value.toString().match(regex) ) return null; return value}); },
 	transform: function(trans) {
 		var newRoute = this._owner._clone();
 		newRoute.createVariable("transformated");
@@ -207,6 +207,7 @@ RouteChange.prototype = {
 		return newRoute.onSet(varName);
 	},
 	log: function() {
+console.log("bla");
 		this._owner[this._type][this._varName].push({exec: function(value){console.log(value)}});
 		return this;
 	},
@@ -221,7 +222,7 @@ RouteChange.prototype = {
 	prepend: function(element) {
 		this._owner[this._type][this._varName].push({
 			exec: function(value) {
-				if(element === undefined)
+				if(element == null)
 					element = document.body;
 				if(typeof(element.get) == typeof(function(){})) 
 					element = element.get(0);
@@ -232,7 +233,7 @@ RouteChange.prototype = {
 	append: function(element) {
 		this._owner[this._type][this._varName].push({
 			exec: function(value) {
-				if(element === undefined)
+				if(element == null)
 					element = document.body;
 				if(typeof(element.get) == typeof(function(){})) 
 					element = element.get(0);
@@ -243,7 +244,7 @@ RouteChange.prototype = {
 	update: function(element) {
 		this._owner[this._type][this._varName].push({
 			exec: function(value) {
-				if(element === undefined)
+				if(element == null)
 					element = document.body;
 				if(typeof(element.get) == typeof(function(){})) 
 					element = element.get(0);
@@ -388,7 +389,7 @@ Template.prototype = {
 	},
 	'noundef': function(data) {
 		var ret = this.execute(data);
-		return (ret == undefined ? "" : ret);
+		return (ret == null ? "" : ret);
 	},
 	'return': function(data) {
 		return this.execute(data);
