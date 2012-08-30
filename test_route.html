@@ -11,7 +11,7 @@
 					.createVariable("anotherVar")
 					.createVariable("fontColor")
 
-				r.createTemplate("tmpl01", "<font color='<% fontColor %>'> number: <% varName %>, str: <% anotherVar %> </font><br />");
+				r.createTemplate("tmpl01", "<font color='<%= fontColor |%>'> number: <%= varName |%>, str: <%= anotherVar |%> </font><br />");
 
 				r.onSet("varName")
 					.log()
@@ -24,21 +24,21 @@
 					.filter_nregex(/^2\d*$/)
 					.log();
 
-				//r.onSet("varName")
-				//	.render("tmpl01")
-				//	.update($("div#div"))
+				r.onSet("varName")
+					.render("tmpl01")
+					.update($("div#div"))
 
-				//r.onSet("anotherVar")
-				//	.render("tmpl01")
-				//	.update($("div#div"))
+				r.onSet("anotherVar")
+					.render("tmpl01")
+					.update($("div#div"))
 
-				//r.anotherVar = "test string";
+				r.anotherVar = "test string";
 				r.varName = 0;
 
-				//r.onChange($("#str")).set("anotherVar");
-				//r.onChange($("#color"), "fontColor")
-				//	.render("tmpl01")
-				//	.update($("div#div"));
+				r.onChange($("#str")).set("anotherVar");
+				r.onChange($("#color"), "fontColor")
+					.render("tmpl01")
+					.update($("div#div"));
 
 				$("#incr").click(function(){Route.getRoot().varName++});
 			});

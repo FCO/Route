@@ -184,10 +184,11 @@ RouteChange.prototype = {
 	filter_regex: function(regex) { return this.transform(function(value) {if(value != null &&   value.toString().match(regex) ) return null; return value}); },
 	filter_nregex: function(regex) { return this.transform(function(value){if(value != null && ! value.toString().match(regex) ) return null; return value}); },
 	transform: function(trans) {
-		var newRoute = this._owner._clone();
+		//var newRoute = this._owner._clone();
+		var newRoute = new Route();
 		newRoute.createVariable("transformated");
 		newRoute._templates = this._owner._templates;
-		
+
 		this._owner[this._type][this._varName].push({exec: function(value){newRoute.transformated = trans(value)}});
 		return newRoute.onSet("transformated");
 	},
@@ -207,7 +208,6 @@ RouteChange.prototype = {
 		return newRoute.onSet(varName);
 	},
 	log: function() {
-console.log("bla");
 		this._owner[this._type][this._varName].push({exec: function(value){console.log(value)}});
 		return this;
 	},
